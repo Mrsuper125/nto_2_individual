@@ -31,7 +31,7 @@ def detection_image(image_path, detection_model):
         return ";".join(detections)
 
 
-def inference(detection_model, test_image_dir, output_path):
+def inference(detection_model, test_image_dir, output_path) -> pd.DataFrame:
     # Инициализация пустых списков для имен изображений и предсказаний
     results_name = []
     results_detection = []
@@ -53,5 +53,4 @@ def inference(detection_model, test_image_dir, output_path):
         "predicted_detection": results_detection
     })
 
-    # Сохраняем результаты в CSV
-    df_result.to_csv(output_path, index=False)
+    return df_result

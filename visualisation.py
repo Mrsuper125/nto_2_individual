@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from numpy import asarray
 
 
-def visualize_bbox(img, labels, bboxes, class_names):
+def generate_boxes(img, labels, bboxes, class_names):
 
     # Создаем подписи для каждого box-а на основе меток классов
     captions = [class_names[label_id] for label_id in labels]
@@ -22,41 +22,47 @@ def visualize_bbox(img, labels, bboxes, class_names):
         line_width=10                 # Ширина линии для рамок
     )
 
-    # Отображение изображения с наложенными bounding boxes
-    plt.figure(dpi=200)
-    plt.imshow(bbox_viz)
-    plt.axis("off")  # Убираем оси для лучшей видимости изображения
+    return bbox_viz
 
-
-def visualization_by_idx_prediction(images_dir, train_df, idx, MAPPER):
+def visualize_first_nine(images_dir, predicted_dataframe, MAPPER):
     # Извлекаем путь к изображению по индексу
-    image_path = os.path.join(images_dir, train_df.loc[idx]["image_name"])
-    img = Image.open(image_path)
 
-    # Инициализация пустых списков для хранения координат боксов и меток
-    bboxes = []
-    labels = []
+    plt.figure(figsize=(27, 27))
 
-    img_w, img_h = img.size  # Ширина и высота изображения
+    for i in range(1, 10):
+        image_path = os.path.join(images_dir, predicted_dataframe.loc[i]["image_name"])
+        img = Image.open(image_path)
 
-    # Разбираем предсказания для данного изображения
-    for markup in train_df.loc[idx]["predicted_detection"].split(";"):
-        # Обработка предсказания: label, cx, cy, w, h, conf
-        label, cx, cy, w, h, conf = markup.split()
-        # Преобразуем метку в целое число
-        label = int(float(label))
-        # Преобразуем координаты в float
-        cx, cy, w, h = map(float, [cx, cy, w, h])
+        # Инициализация пустых списков для хранения координат боксов и меток
+        bboxes = []
+        labels = []
 
-        # Предобрабатываем координаты боксов в пикселях
-        x1 = int((cx - w/2) * img_w)
-        x2 = int((cx + w/2) * img_w)
-        y1 = int((cy - h/2) * img_h)
-        y2 = int((cy + h/2) * img_h)
+        img_w, img_h = img.size  # Ширина и высота изображения
 
-        # Добавляем метки и боксы в соответствующие списки
-        labels.append(label)
-        bboxes.append([y1, x1, y2, x2])
+        # Разбираем предсказания для данного изображения
+        for markup in predicted_dataframe.loc[i]["predicted_detection"].split(";"):
+            # Обработка предсказания: label, cx, cy, w, h, conf
+            label, cx, cy, w, h, conf = markup.split()
+            # Преобразуем метку в целое число
+            label = int(float(label))
+            # Преобразуем координаты в float
+            cx, cy, w, h = map(float, [cx, cy, w, h])
 
-    # Визуализируем боксы на изображении
-    visualize_bbox(asarray(img), labels, bboxes, MAPPER)
+            # Предобрабатываем координаты боксов в пикселях
+            x1 = int((cx - w/2) * img_w)
+            x2 = int((cx + w/2) * img_w)
+            y1 = int((cy - h/2) * img_h)
+            y2 = int((cy + h/2) * img_h)
+
+            # Добавляем метки и боксы в соответствующие списки
+            labels.append(label)
+            bboxes.append([y1, x1, y2, x2])
+
+        # Визуализируем боксы на изображении
+        marked_image = generate_boxes(asarray(img), labels, bboxes, MAPPER)
+
+        plt.subplot(3, 3, i)
+        plt.imshow(marked_image)
+        plt.axis("off")  # Убираем оси для лучшей видимости изображения
+
+    plt.show()

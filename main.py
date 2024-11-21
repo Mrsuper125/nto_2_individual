@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
 from ultralytics import YOLO
 
@@ -9,7 +10,7 @@ from preprocessing import yolo_files_preprocess
 
 import yaml
 
-from visualisation import visualization_by_idx_prediction
+from visualisation import visualize_first_nine
 
 data_df_path = "data/train.csv"
 yolo_data_dir = "yolo/"
@@ -20,7 +21,7 @@ Path("yolo/images/val").mkdir(exist_ok=True, parents=True)
 Path("yolo/labels/train").mkdir(exist_ok=True, parents=True)
 Path("yolo/labels/val").mkdir(exist_ok=True, parents=True)
 
-yolo_files_preprocess(data_df_path, yolo_data_dir, images_data_dir)
+#yolo_files_preprocess(data_df_path, yolo_data_dir, images_data_dir)
 
 data = {
     "path": "../",
@@ -45,26 +46,21 @@ def train(model_info, config_file):
         imgsz=640,  # размер изображения для обучения
         batch=4,  # размер батча для обучения
         device=0,  # номер девайса для обучения
-        #resume = True,
+        resume = True,
         single_cls=False  # для обучения с учетом классов на основании data.yaml
     )
 
 
-train("./yolo11x.pt", "./yolo/yolo_config.yaml")
+#train("./runs/detect/train5/weights/best.pt", "./yolo/yolo_config.yaml")
 
-"""
 
-path_detection_model_cpt = Path("runs/detect/train2/weights/best.pt")
+path_detection_model_cpt = Path("./runs/detect/train5/weights/best.pt")
 output_path = Path("submission.csv")
-dir_test_images = Path("data/check/images")
+dir_test_images = Path("./data/check/images")
 
 detection_model = YOLO(path_detection_model_cpt)
-inference(detection_model, dir_test_images, output_path)
+inferred_dataframe = inference(detection_model, dir_test_images, output_path)
 
 MAPPER = ['Заяц', 'Кабан', 'Кошки', 'Куньи', 'Медведь', 'Оленевые', 'Пантеры', 'Полорогие', 'Собачие', 'Сурок']
 
-idx = 3
-submission_df = pd.read_csv("submission.csv")
-visualization_by_idx_prediction(dir_test_images, submission_df, idx, MAPPER)
-
-"""
+visualize_first_nine(dir_test_images, inferred_dataframe, MAPPER)
