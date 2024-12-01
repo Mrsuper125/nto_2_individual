@@ -21,8 +21,8 @@ Path("yolo/images/val").mkdir(exist_ok=True, parents=True)
 Path("yolo/labels/train").mkdir(exist_ok=True, parents=True)
 Path("yolo/labels/val").mkdir(exist_ok=True, parents=True)
 
-#yolo_files_preprocess(data_df_path, yolo_data_dir, images_data_dir)
-
+# yolo_files_preprocess(data_df_path, yolo_data_dir, images_data_dir)
+"""
 data = {
     "path": "../",
     "train": "yolo/images/train",
@@ -34,6 +34,7 @@ data = {
 
 with open('yolo/yolo_config.yaml', 'w') as file:
     yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
+"""
 
 os.environ['WANDB_MODE'] = 'disabled'
 
@@ -42,25 +43,24 @@ def train(model_info, config_file):
     model = YOLO(model_info)
     training_results = model.train(
         data=config_file,
-        epochs=25,  # число эпох для обучения
+        epochs=40,  # число эпох для обучения
         imgsz=640,  # размер изображения для обучения
-        batch=4,  # размер батча для обучения
+        batch=6,  # размер батча для обучения
         device=0,  # номер девайса для обучения
-        resume = True,
+        resume=True,
         single_cls=False  # для обучения с учетом классов на основании data.yaml
     )
 
 
-#train("./runs/detect/train5/weights/best.pt", "./yolo/yolo_config.yaml")
+train("./runs/detect/train16/weights/best.pt", "./yolo/yolo_config.yaml")
 
+# path_detection_model_cpt = Path("./runs/detect/train5/weights/best.pt")
+# output_path = Path("submission.csv")
+# dir_test_images = Path("./data/check/images")
 
-path_detection_model_cpt = Path("./runs/detect/train5/weights/best.pt")
-output_path = Path("submission.csv")
-dir_test_images = Path("./data/check/images")
+# detection_model = YOLO(path_detection_model_cpt)
+# inferred_dataframe = inference(detection_model, dir_test_images, output_path)
 
-detection_model = YOLO(path_detection_model_cpt)
-inferred_dataframe = inference(detection_model, dir_test_images, output_path)
+# MAPPER = ['Заяц', 'Кабан', 'Кошки', 'Куньи', 'Медведь', 'Оленевые', 'Пантеры', 'Полорогие', 'Собачие', 'Сурок']
 
-MAPPER = ['Заяц', 'Кабан', 'Кошки', 'Куньи', 'Медведь', 'Оленевые', 'Пантеры', 'Полорогие', 'Собачие', 'Сурок']
-
-visualize_first_nine(dir_test_images, inferred_dataframe, MAPPER)
+# visualize_first_nine(dir_test_images, inferred_dataframe, MAPPER)

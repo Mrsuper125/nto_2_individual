@@ -6,3 +6,7 @@
 /yolo11x.pt
 /.idea/
 /.venv/
+/submit/best.pt
+/submit.zip
+*.pt
+YOLOv8/
